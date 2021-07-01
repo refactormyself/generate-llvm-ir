@@ -4,3 +4,6 @@ project(cli_app_basic)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(cli_app_basic main.cpp)
+
+enable_testing()
+add_subdirectory(test)
