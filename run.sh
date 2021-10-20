@@ -7,7 +7,7 @@ cmake ..
 make
 make test
 
-./cli_app_basic
+./cli_app_basic --help
 ./test/common_tests
 
 cd $CURR_DIR
