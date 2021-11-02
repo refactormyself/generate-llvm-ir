@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(cli_app_basic)
+project(gen-llvm-ir)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -12,8 +12,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cli11)
 
-add_executable(cli_app_basic main.cpp)
-target_link_libraries(cli_app_basic CLI11::CLI11)
+add_executable(gen-llvm-ir main.cpp)
+target_link_libraries(gen-llvm-ir CLI11::CLI11)
 
 enable_testing()
 add_subdirectory(test)
