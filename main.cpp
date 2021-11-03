@@ -1,59 +1,59 @@
+#include "generator.hpp"
+
 #include <CLI/CLI.hpp>
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <experimental/filesystem>
+
+
+using namespace dragon;
+namespace fs = std::experimental::filesystem;
 
 int main(int argc, char **argv) {
-    std::string APP_VERSION = "0.00.0";
+    std::string APP_VERSION = "0.01";
+    std::string headerFile = fs::current_path().parent_path() / "test" /"include"/ "header.h";
+    std::string outputFile = "./test/OutputFile.ll";
 
-    // describe the app
-    CLI::App app("This is a basic command line app. Nothing fancy."
-                 "\nIt uses the cli11 library: https://cliutils.github.io/CLI11/");
-    // version query
+    CLI::App app("This app generates llvm IR code for two functions: square(x) and sumsquares(x, y).\n");
     app.set_version_flag("--version",
                          APP_VERSION + "; using cli11 version "
                          + std::string(CLI11_VERSION) + ".");
 
-    // input file (positional)
-    std::string inputFile;
-    CLI::Option *inputOpt = app.add_option("-i,--in,file",
-                                           inputFile, "Input File name");
-
-    // output file
-    std::string outputFile;
-    CLI::Option *outputOpt = app.add_option("-o,--output",
-                                            outputFile, "Output File name");
-
-    // pass in numerical values
-    int valueInt{0};
-    CLI::Option *optInt = app.add_option("-z,--integer", valueInt, "Integer value");
-
-    double valueDouble{0.0};  // = 3.14;
-    app.add_option("-d,--double", valueDouble, "Floating Point Value");
-
-    // general flags
-    int flagValue{0};
-    CLI::Option *flag = app.add_flag("--flag",
-                                     flagValue, "Some flag that can be passed multiple times");
-
     CLI11_PARSE(app, argc, argv);
 
-    if (!inputOpt->empty())
-        std::cout << "I received the file: " << inputFile
-                  << " as an input file. \nNum of times it was passed in: direct count: "
-                  << app.count("--in")
-                  << ", opt count: " << inputOpt->count() << std::endl;
-    else std::cout << "No input file supplied! Option count: " << inputOpt->count() << std::endl;
+    std::string headerStr =
+    R"(
+// This is auto-generated
+#ifndef GEN_HEADER_H
+#define GEN_HEADER_H
+extern "C" {
+ int square(int);
+ int sumsquares(int, int);
+ int fivefactorial();
+ int fivefactorialnofold();
+}
+#endif // GEN_HEADER_H
+    )";
 
-    if (!outputOpt->empty())
-        std::cout << "I received the file: " << outputFile
-                  << " as an output file. \nNum of times it was passed in: direct count: "
-                  << app.count("--output")
-                  << ", opt count: " << outputOpt->count() << std::endl;
-    else std::cout << "No output file supplied! Option count: " << outputOpt->count() << std::endl;
+    IRGenerator irGenerator;
+//    auto outString = irGenerator.GetSquareFuncIR();
+    auto outString = irGenerator.GetMainModuleIR();
+    std::ofstream outputStream;
+    outputStream.open(outputFile);
+    if (outputStream && !outString.empty()) {
+        outputStream << outString;
+        outputStream.flush();
+        std::cout << "The Module's IR written into: " << outputFile << "\n";
 
-    std::cout << "Integer value: " << valueInt << std::endl;
-    std::cout << "Floating Point value: " << valueDouble << std::endl;
-    std::cout << "Received flag: " << flagValue << " (" << flag->count() << ") times\n";
+        outputStream.close();
+        outputStream.close();
+        outputStream.open(headerFile);
+        outputStream << headerStr;
+        outputStream.flush();
+        std::cout << "The Header file is written into: " <<  headerFile<< "\n";
+
+    } else std::cout << "No IR generated OR Failed to open the file " << outputFile << " for write\n";
 
     return 0;
 }

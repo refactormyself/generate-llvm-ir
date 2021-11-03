@@ -2,5 +2,5 @@ build/
 cmake*
 .idea
 .vscode
-notes.md
+note*.md
 me.sh

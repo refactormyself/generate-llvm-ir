@@ -1,9 +1,21 @@
-# Here is the CMake config for the test setup
-# We are building a separate test (main) so that we don't have to adapt our cli app interface for testing
+cmake_minimum_required(VERSION 3.13.4)
+project(test)
+
 set(src
         common_tests.cpp
         main.cpp
+        include/header.h
 )
+
+set(BUILD_SHARED_LIBS on)
+
+## compile the llvm IR
+#if (EXISTS "../OutputFile.ll")
+##    execute_process( COMMAND llc ../OutputFile.ll -o Output.s)
+#     execute_process( COMMAND clang -shared -fPIC -o Output.so ../OutputFile.ll )
+#else ()
+#    message( FATAL_ERROR "Cannot find OutputFile.ll " )
+#endif ()
 
 # Get Google Test
 include(FetchContent)
@@ -16,9 +28,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(common_tests ${src})
-
-include_directories("../include")
+add_executable(common_tests ${src}) #${CMAKE_CURRENT_BINARY_DIR}/Output.so)
 
 target_link_libraries(common_tests gtest)
 target_link_libraries(common_tests gtest_main)
